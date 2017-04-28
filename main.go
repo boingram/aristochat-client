@@ -14,9 +14,9 @@ type event struct {
 }
 
 type payload struct {
-	Response string `json:"response"`
 	Status   string `json:"status"`
 	Body     string `json:"body"`
+	Username string `json:"username"`
 }
 
 func writer(conn *websocket.Conn) {
@@ -24,7 +24,6 @@ func writer(conn *websocket.Conn) {
 		Topic:   "rooms:test",
 		Event:   "phx_join",
 		Payload: payload{},
-		Ref:     "",
 	}
 	err := conn.WriteJSON(e)
 	if err != nil {
@@ -55,7 +54,7 @@ func reader(conn *websocket.Conn) (*event, error) {
 
 func main() {
 	var dialer *websocket.Dialer
-	conn, _, err := dialer.Dial("ws://localhost:4000/socket/websocket", nil)
+	conn, _, err := dialer.Dial("ws://localhost:4000/socket/websocket?username=user2", nil)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -68,6 +67,6 @@ func main() {
 		if err != nil {
 			fmt.Println(fmt.Sprintf("ERROR: %v", err))
 		}
-		fmt.Println(msg.Payload.Body)
+		fmt.Println(fmt.Sprintf("%v: %v", msg.Payload.Username, msg.Payload.Body))
 	}
 }
