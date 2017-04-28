@@ -1,25 +1,56 @@
 package main
 
 import (
-	"github.com/gorilla/websocket"
 	"fmt"
+	"github.com/gorilla/websocket"
+	"time"
 )
 
-type push struct {
-	Topic string `json:"topic"`
-	Event string `json:"event"`
-	Payload []byte `json:"payload"`
-	Ref string `json:"ref"`
+type event struct {
+	Topic   string  `json:"topic"`
+	Event   string  `json:"event"`
+	Payload payload `json:"payload"`
+	Ref     string  `json:"ref"`
+}
+
+type payload struct {
+	Response string `json:"response"`
+	Status   string `json:"status"`
+	Body     string `json:"body"`
 }
 
 func writer(conn *websocket.Conn) {
-	push := push{
-		Topic: "rooms:test",
-		Event: "phx_join",
-		Payload: []byte{},
-		Ref: "",
+	e := event{
+		Topic:   "rooms:test",
+		Event:   "phx_join",
+		Payload: payload{},
+		Ref:     "",
 	}
-	conn.WriteJSON(push)
+	err := conn.WriteJSON(e)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	msgBody := payload{
+		Body: "helloooooooooo",
+	}
+	e2 := event{
+		Topic:   "rooms:test",
+		Event:   "new_msg",
+		Payload: msgBody,
+		Ref:     "",
+	}
+
+	err = conn.WriteJSON(e2)
+	if err != nil {
+		fmt.Println(err)
+	}
+}
+
+func reader(conn *websocket.Conn) (*event, error) {
+	var msg event
+	err := conn.ReadJSON(&msg)
+	return &msg, err
 }
 
 func main() {
@@ -30,4 +61,13 @@ func main() {
 		return
 	}
 	writer(conn)
+	for {
+		time.Sleep(time.Millisecond * 100)
+		msg, err := reader(conn)
+
+		if err != nil {
+			fmt.Println(fmt.Sprintf("ERROR: %v", err))
+		}
+		fmt.Println(msg.Payload.Body)
+	}
 }
