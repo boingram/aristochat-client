@@ -62,6 +62,7 @@ func (ui *UI) sendMessage(_ *gocui.Gui, v *gocui.View) error {
 }
 
 func quit(_ *gocui.Gui, _ *gocui.View) error {
+	logrus.Info("Exiting application!")
 	return gocui.ErrQuit
 }
 
