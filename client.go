@@ -1,9 +1,9 @@
 package aristochat
 
 import (
+	"fmt"
 	"github.com/gorilla/websocket"
 	"time"
-	"fmt"
 )
 
 // Client defines a client that communicates with a Phoenix server over a channel/websocket
@@ -38,7 +38,7 @@ func NewClient(address, room string) (*Client, error) {
 	}
 
 	client := Client{
-		ch: make(chan *Payload),
+		ch:   make(chan *Payload),
 		conn: conn,
 		room: room,
 	}
@@ -46,6 +46,8 @@ func NewClient(address, room string) (*Client, error) {
 	return &client, nil
 }
 
+// Listen listens for messages coming across the websocket. It exposes new chat messages via
+// the client's channel
 func (c *Client) Listen() error {
 	err := c.join(c.room)
 	if err != nil {
@@ -63,6 +65,7 @@ func (c *Client) Listen() error {
 	}
 }
 
+// Channel gives access to the channel holding new messages so that the UI can display them
 func (c *Client) Channel() chan *Payload {
 	return c.ch
 }
@@ -105,6 +108,7 @@ func (c *Client) sendHeartbeats() {
 	}()
 }
 
+// SendMessage sends a new message to the server
 func (c *Client) SendMessage(message string) error {
 	p := Payload{
 		Body: message,

@@ -71,7 +71,7 @@ func (m *mockServer) listenServer(w http.ResponseWriter, r *http.Request) {
 		var in Message
 		err := conn.ReadJSON(&in)
 		if err != nil {
-			m.t.Errorf("Error reading from socket: %v")
+			m.t.Errorf("Error reading from socket: %v", err)
 		}
 		if in.Event == "heartbeat" {
 			if in.Topic != "phoenix" {

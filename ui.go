@@ -6,16 +6,18 @@ import (
 	"strings"
 )
 
+// UI is a terminal UI for sending and receiving chat messages
 type UI struct {
 	client   *Client
 	messages []string
 }
 
-var INPUT_WINDOW_HEIGHT = 3
+// InputViewHeight defines how many lines tall the input view is
+var InputViewHeight = 3
 
 func (ui *UI) layout(g *gocui.Gui) error {
 	maxX, maxY := g.Size()
-	if v, err := g.SetView("messages", -1, -1, maxX, maxY-INPUT_WINDOW_HEIGHT); err != nil {
+	if v, err := g.SetView("messages", -1, -1, maxX, maxY-InputViewHeight); err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
 		}
@@ -24,7 +26,7 @@ func (ui *UI) layout(g *gocui.Gui) error {
 		v.SetCursor(-1, -1)
 		return nil
 	}
-	if v, err := g.SetView("stdin", -1, maxY-INPUT_WINDOW_HEIGHT, maxX, maxY+1); err != nil {
+	if v, err := g.SetView("stdin", -1, maxY-InputViewHeight, maxX, maxY+1); err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
 		}
@@ -82,6 +84,7 @@ func writeMessage(g *gocui.Gui, msg string) {
 	})
 }
 
+// StartUI passes a client to the UI and initializes it, kicking off the main loop
 func StartUI(client *Client) error {
 	ui := UI{
 		client:   client,
