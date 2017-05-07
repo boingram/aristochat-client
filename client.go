@@ -1,7 +1,7 @@
 package aristochat
 
 import (
-	"fmt"
+	"github.com/Sirupsen/logrus"
 	"github.com/gorilla/websocket"
 	"time"
 )
@@ -57,9 +57,10 @@ func (c *Client) Listen() error {
 		time.Sleep(time.Millisecond * 100)
 		message, err := c.read()
 		if err != nil {
-			fmt.Println(fmt.Sprintf("error reading from socket: %v", err))
+			logrus.Warnf("Error reading from socket: %v", err)
 		}
 		if message != nil && message.Event == "new_msg" {
+			logrus.Debug("Received message from socket, sending to UI")
 			c.ch <- &message.Payload
 		}
 	}
@@ -82,6 +83,7 @@ func (c *Client) join(room string) error {
 	if err != nil {
 		return err
 	}
+	logrus.Infof("Joined chat room %s", room)
 	c.topic = topic
 	go c.sendHeartbeats()
 	return nil
@@ -103,6 +105,7 @@ func (c *Client) sendHeartbeats() {
 	t := time.NewTicker(time.Second * 5)
 	go func() {
 		for range t.C {
+			logrus.Debug("Sending heartbeat")
 			c.write(&m)
 		}
 	}()
@@ -118,6 +121,7 @@ func (c *Client) SendMessage(message string) error {
 		Event:   "new_msg",
 		Payload: p,
 	}
+	logrus.Debugf("Sending message '%s'", message)
 	return c.write(&m)
 }
 

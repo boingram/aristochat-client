@@ -2,6 +2,7 @@ package aristochat
 
 import (
 	"fmt"
+	"github.com/Sirupsen/logrus"
 	"github.com/jroimartin/gocui"
 	"strings"
 )
@@ -56,6 +57,7 @@ func (ui *UI) sendMessage(_ *gocui.Gui, v *gocui.View) error {
 	msg := strings.TrimSpace(v.Buffer())
 	v.Clear()
 	v.SetCursor(0, 0)
+	logrus.Debug("User entered message, sending from UI to client")
 	return ui.client.SendMessage(msg)
 }
 
@@ -74,6 +76,7 @@ func (ui *UI) listenForPayloads(g *gocui.Gui) error {
 }
 
 func writeMessage(g *gocui.Gui, msg string) {
+	logrus.Debug("Redrawing UI with new message")
 	g.Execute(func(g *gocui.Gui) error {
 		v, err := g.View("messages")
 		if err != nil {
@@ -108,6 +111,7 @@ func StartUI(client *Client) error {
 	go ui.client.Listen()
 	go ui.listenForPayloads(g)
 
+	logrus.Info("Starting UI!")
 	if err := g.MainLoop(); err != nil && err != gocui.ErrQuit {
 		return err
 	}
