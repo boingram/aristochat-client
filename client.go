@@ -16,10 +16,17 @@ type Client struct {
 
 // Message defines the structure of the messages sent across the channel
 type Message struct {
-	Topic   string  `json:"topic"`
-	Event   string  `json:"event"`
+	// Topic defines the Phoenix topic we're communicating on (must be 'phoenix' when sending heartbeats)
+	Topic string `json:"topic"`
+
+	// Event defines the type of event we're sending - one of phx_join, heartbeat, or chat_msg
+	Event string `json:"event"`
+
+	// Payload defines the body of the message coming across
 	Payload Payload `json:"payload"`
-	Ref     string  `json:"ref"`
+
+	// Ref is a unique string that phoenix uses
+	Ref string `json:"ref"`
 }
 
 // Payload defines the non-channel-specific body of the Message
@@ -59,7 +66,7 @@ func (c *Client) Listen() error {
 		if err != nil {
 			logrus.Warnf("Error reading from socket: %v", err)
 		}
-		if message != nil && message.Event == "new_msg" {
+		if message != nil && message.Event == "chat_msg" {
 			logrus.Debug("Received message from socket, sending to UI")
 			c.ch <- &message.Payload
 		}
@@ -118,7 +125,7 @@ func (c *Client) SendMessage(message string) error {
 	}
 	m := Message{
 		Topic:   c.topic,
-		Event:   "new_msg",
+		Event:   "chat_msg",
 		Payload: p,
 	}
 	logrus.Debugf("Sending message '%s'", message)
