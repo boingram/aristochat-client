@@ -83,7 +83,7 @@ func (m *mockServer) listenServer(w http.ResponseWriter, r *http.Request) {
 				m.t.Errorf("Expected phx_join to have topic 'rooms:test', has: %v", in.Topic)
 			}
 			m.joined = true
-		} else if in.Event == "new_msg" {
+		} else if in.Event == "chat_msg" {
 			err = conn.WriteJSON(in)
 			if err != nil {
 				m.t.Errorf("Error sending message back to client: %v", err)
