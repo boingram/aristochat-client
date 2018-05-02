@@ -89,7 +89,7 @@ func (ui *UI) listenForPayloads(g *gocui.Gui) error {
 
 func writeMessage(g *gocui.Gui, msg string) {
 	logrus.Debug("Redrawing UI with new message")
-	g.Execute(func(g *gocui.Gui) error {
+	g.Update(func(g *gocui.Gui) error {
 		v, err := g.View("messages")
 		if err != nil {
 			return err
